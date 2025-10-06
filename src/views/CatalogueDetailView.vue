@@ -95,7 +95,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { getBoosterById, getSetByCode } from "@/services/products"; 
+import { getBoosterById, getSetByCode } from "@/services/firestoreProducts";
 
 const route = useRoute();
 const product = ref(null);
@@ -103,15 +103,14 @@ const setData = ref(null);
 
 onMounted(async () => {
   try {
-    // traemos booster por ID
-    const { data: current } = await getBoosterById(route.params.id);
+    // 🧩 Traemos booster por ID desde Firestore
+    const current = await getBoosterById(route.params.id);
     product.value = current;
 
-    if (current) {
-      // traemos el set por código (ej: BT1)
-      const { data } = await getSetByCode(current.code);
-      // como JSON Server devuelve un array, usamos el primer elemento
-      setData.value = data[0] || null;
+    if (current && current.code) {
+      // 🧩 Traemos set por código (ej: BT1)
+      const data = await getSetByCode(current.code);
+      setData.value = data.length > 0 ? data[0] : null;
     }
   } catch (err) {
     console.error("Error cargando detalle:", err);
@@ -120,7 +119,6 @@ onMounted(async () => {
 
 function addToCart(product) {
   console.log("Agregar al carrito desde detalle:", product);
-  // luego conectamos con pinia
 }
 </script>
 

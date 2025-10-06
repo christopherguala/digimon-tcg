@@ -31,7 +31,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import CatalogueCard from "./CatalogueCard.vue";
-import { getBoosters } from "@/services/products";
+import { getBoosters } from "@/services/firestoreProducts";
 
 const router = useRouter(); 
 const boosters = ref([]);
@@ -39,8 +39,7 @@ const filter = ref("");
 
 onMounted(async () => {
   try {
-    const { data } = await getBoosters();
-    boosters.value = data;
+    boosters.value = await getBoosters();
   } catch (err) {
     console.error("Error al cargar boosters:", err);
   }
