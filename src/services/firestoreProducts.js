@@ -39,9 +39,24 @@ export const createBooster = async (newBooster) => {
 };
 
 
-export const updateBooster = async (id, updatedBooster) => {
-  const ref = doc(db, "boosters", id);
-  await updateDoc(ref, updatedBooster);
+export const updateBooster = async (boosterId, newStock) => {
+  try {
+    const boostersRef = collection(db, "boosters");
+    const q = query(boostersRef, where("id", "==", boosterId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.error(`❌ No se encontró booster con id interno: ${boosterId}`);
+      return;
+    }
+
+    const boosterDoc = querySnapshot.docs[0];
+    await updateDoc(boosterDoc.ref, { stock: newStock });
+
+    console.log(`✅ Stock del booster ${boosterId} actualizado correctamente a ${newStock}`);
+  } catch (error) {
+    console.error("❌ Error al actualizar booster:", error);
+  }
 };
 
 

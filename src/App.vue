@@ -5,6 +5,9 @@ import { ref, computed } from 'vue';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { useUserStore } from '@/stores/user';
 import { createUserProfile, getUserProfile } from '@/services/firestoreUsers';
+import CartOffcanvas from "@/components/CartOffcanvas.vue";
+import { useCartStore } from "@/stores/cart";
+const cart = useCartStore();
 
 const showCart = ref(false);
 const showUser = ref(false);
@@ -128,15 +131,7 @@ async function logoutUser() {
 </header>
 
 
-<div class="offcanvas offcanvas-end" tabindex="-1" :class="{ show: showCart }" style="visibility: visible;" @click.self="toggleCart">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title">Carrito</h5>
-    <button type="button" class="btn-close" @click="toggleCart"></button>
-  </div>
-  <div class="offcanvas-body">
-    Aquí irá tu carrito de compras
-  </div>
-</div>
+<CartOffcanvas :showCart="showCart" :toggleCart="toggleCart" />
 
 
 <div class="offcanvas offcanvas-end" tabindex="-1" :class="{ show: showUser }" style="visibility: visible;" @click.self="toggleUser">

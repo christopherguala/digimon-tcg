@@ -2,7 +2,6 @@
 <template>
   <div class="catalogue-detail container my-5">
     <div v-if="product && setData" class="row">
-      <!-- Imagen -->
       <div class="col-12 col-md-5 text-center mb-3 mb-md-0">
         <img
           :src="product.image"
@@ -12,11 +11,9 @@
         />
       </div>
 
-      <!-- Info -->
       <div class="col-12 col-md-7">
         <h2 class="mb-3">{{ product.name }}</h2>
 
-        <!-- Descripción -->
         <p v-if="product.type === 'booster'">
           Booster pack para Digimon TCG temporada <strong>{{ product.code }}</strong>, 
           la cual posee un total de <strong>{{ setData.content.cards }}</strong> cartas nuevas 
@@ -33,7 +30,6 @@
           Su distribución de rarezas es la siguiente:
         </p>
 
-        <!-- Rarezas (UL) -->
         <ul>
           <li v-if="product.type === 'booster'">Comunes: {{ product.booster.common }}</li>
           <li v-if="product.type === 'booster'">Poco común: {{ product.booster.uncommon }}</li>
@@ -53,13 +49,11 @@
           </li>
         </ul>
 
-        <!-- Link al set -->
         <p class="mt-3">
           Para saber qué cartas puedes obtener en este set, revisa la información del 
           <a href="#" class="fw-bold text-decoration-none">{{ setData.name }}</a>.
         </p>
 
-        <!-- Precio, stock y botón -->
         <div class="mt-4">
           <p>
             <span v-if="product.discount" class="text-success fw-bold me-2">
@@ -77,7 +71,7 @@
             class="btn"
             :class="product.stock > 0 ? 'btn-primary' : 'btn-secondary'"
             :disabled="product.stock <= 0"
-            @click="addToCart(product)"
+            @click.stop="addProduct(product)"
           >
             {{ product.stock > 0 ? "Agregar al carrito" : "Sin stock" }}
           </button>
@@ -85,7 +79,6 @@
       </div>
     </div>
 
-    <!-- Cargando -->
     <div v-else class="text-center my-5">
       <div class="spinner-border text-primary"></div>
     </div>
@@ -96,6 +89,13 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { getBoosterById, getSetByCode } from "@/services/firestoreProducts";
+import { useCartStore } from "@/stores/cart";
+const cart = useCartStore();
+
+function addProduct(product) {
+  cart.addToCart(product);
+}
+
 
 const route = useRoute();
 const product = ref(null);
@@ -103,12 +103,10 @@ const setData = ref(null);
 
 onMounted(async () => {
   try {
-    // 🧩 Traemos booster por ID desde Firestore
     const current = await getBoosterById(route.params.id);
     product.value = current;
 
     if (current && current.code) {
-      // 🧩 Traemos set por código (ej: BT1)
       const data = await getSetByCode(current.code);
       setData.value = data.length > 0 ? data[0] : null;
     }
