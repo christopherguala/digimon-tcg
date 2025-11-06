@@ -1,4 +1,4 @@
-
+//no vean este archivo es de cuando usaba axios, solo mantengo el ejemplo
 
 import axios from "axios";
 
@@ -14,15 +14,11 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    // Si tienes un token en localStorage:
-    // const token = localStorage.getItem("token");
-    // if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// errores
 api.interceptors.response.use(
   (response) => response,
   (error) => {

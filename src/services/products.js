@@ -1,4 +1,4 @@
-
+// no vean este archivo es de cuando usaba axios y json server, solo mantenfo el ejemplo
 
 
 import api from "@/lib/axios";

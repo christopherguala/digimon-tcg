@@ -3,23 +3,31 @@
 import { defineStore } from "pinia";
 import { ref, computed, watch } from "vue";
 import { updateBooster } from "@/services/firestoreProducts";
-import { getUserProfile, createUserProfile } from "@/services/firestoreUsers";
 import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useUserStore } from "./user";
 import { useProductsStore } from "./products";
 
-
 export const useCartStore = defineStore("cart", () => {
   const items = ref([]);
   const userStore = useUserStore();
-
+  const successMessage = ref("");
   const saved = localStorage.getItem("cart");
-  if (saved) items.value = JSON.parse(saved);
+  if (saved) {
+    try {
+      items.value = JSON.parse(saved);
+    } catch {
+      items.value = [];
+    }
+  }
 
-  watch(items, (val) => {
-    localStorage.setItem("cart", JSON.stringify(val));
-  }, { deep: true });
+  watch(
+    items,
+    (val) => {
+      localStorage.setItem("cart", JSON.stringify(val));
+    },
+    { deep: true }
+  );
 
   const totalPrice = computed(() =>
     items.value.reduce((sum, p) => sum + p.price * p.quantity, 0)
@@ -45,16 +53,16 @@ export const useCartStore = defineStore("cart", () => {
     } else {
       if (product.stock > 0) {
         items.value.push({
-            id: product.id,
-            name: product.name,
-            image: product.image,
-            price:
+          id: product.id,
+          name: product.name,
+          image: product.image,
+          price:
             product.discount === true
-            ? Number(product.price) - Number(product.discount_price)
-            : Number(product.price),
-            stock: product.stock,
-            quantity: 1,
-          });
+              ? Number(product.price) - Number(product.discount_price)
+              : Number(product.price),
+          stock: product.stock,
+          quantity: 1,
+        });
       } else {
         alert("Producto sin stock disponible.");
       }
@@ -111,8 +119,7 @@ export const useCartStore = defineStore("cart", () => {
 
     for (const p of items.value) {
       const newStock = p.stock - p.quantity;
-      await updateBooster(p.id, newStock);
-
+      await updateBooster(p.id, { stock: newStock });
     }
 
     const userRef = doc(db, "usuarios", userId);
@@ -120,17 +127,25 @@ export const useCartStore = defineStore("cart", () => {
       compras: arrayUnion(compra),
     });
 
-    const productsStore = useProductsStore();
-    await productsStore.fetchBoosters();
+    try {
+      const productsStore = useProductsStore();
+      if (productsStore && typeof productsStore.fetchBoosters === "function") {
+        await productsStore.fetchBoosters();
+      }
+    } catch {
+    }
 
-    alert("¡Gracias por tu compra!");
-    items.value = []; 
+    successMessage.value = "✅ ¡Compra realizada con éxito!";
+    items.value = [];
+
+    setTimeout(() => (successMessage.value = ""), 4000);
   }
 
   return {
     items,
     totalItems,
     totalPrice,
+    successMessage,
     addToCart,
     removeFromCart,
     increaseQuantity,

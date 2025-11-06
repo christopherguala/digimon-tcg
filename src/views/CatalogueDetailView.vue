@@ -18,35 +18,36 @@
           Booster pack para Digimon TCG temporada <strong>{{ product.code }}</strong>, 
           la cual posee un total de <strong>{{ setData.content.cards }}</strong> cartas nuevas 
           para coleccionar, tradear y competir.  
-          Cada booster pack de este set contiene un total de <strong>{{ product.booster.pack }}</strong> cartas, 
-          distribuidas en las siguientes rarezas:
+          Cada booster pack de este set contiene un total de 
+          <strong>{{ product.booster.pack }}</strong> cartas, distribuidas en las siguientes rarezas:
         </p>
 
         <p v-else-if="product.type === 'box'">
           Booster box para Digimon TCG temporada <strong>{{ product.code }}</strong>, 
-          con un total de <strong>{{ setData.content.cards }}</strong> cartas nuevas para coleccionar, tradear y competir.  
+          con un total de <strong>{{ setData.content.cards }}</strong> cartas nuevas 
+          para coleccionar, tradear y competir.  
           Cada box contiene <strong>{{ product.booster.pack }}</strong> boosters, 
           e incluye una carta especial llamada <em>Topper</em>, que posee un arte alternativo de un Tamer.
           Su distribución de rarezas es la siguiente:
         </p>
 
         <ul>
-          <li v-if="product.type === 'booster'">Comunes: {{ product.booster.common }}</li>
-          <li v-if="product.type === 'booster'">Poco común: {{ product.booster.uncommon }}</li>
-          <li v-if="product.type === 'booster'">Index: {{ product.booster.index }}</li>
-          <li v-if="product.type === 'booster'">
-            {{ product.booster.more_rares }} de cualquiera de estas categorías: Rara, Super Rara, Secreta o Arte alternativo
-          </li>
+          <template v-if="product.type === 'booster'">
+            <li>Comunes: {{ product.booster.common }}</li>
+            <li>Poco común: {{ product.booster.uncommon }}</li>
+            <li>Index: {{ product.booster.index }}</li>
+            <li>{{ product.booster.more_rares }} de cualquiera de estas categorías: Rara, Super Rara, Secreta o Arte alternativo</li>
+          </template>
 
-          <li v-if="product.type === 'box'">Comunes: {{ product.booster.common }}</li>
-          <li v-if="product.type === 'box'">Poco común: {{ product.booster.uncommon }}</li>
-          <li v-if="product.type === 'box'">Raras: {{ product.booster.rare }}</li>
-          <li v-if="product.type === 'box'">Super raras: {{ product.booster.super_rare }}</li>
-          <li v-if="product.type === 'box'">Index: {{ product.booster.index }}</li>
-          <li v-if="product.type === 'box'">Topper card: {{ product.booster.topper }}</li>
-          <li v-if="product.type === 'box'">
-            {{ product.booster.more_rares }} carta secreta o arte alternativo adicional
-          </li>
+          <template v-else-if="product.type === 'box'">
+            <li>Comunes: {{ product.booster.common }}</li>
+            <li>Poco común: {{ product.booster.uncommon }}</li>
+            <li>Raras: {{ product.booster.rare }}</li>
+            <li>Super raras: {{ product.booster.super_rare }}</li>
+            <li>Index: {{ product.booster.index }}</li>
+            <li>Topper card: {{ product.booster.topper }}</li>
+            <li>{{ product.booster.more_rares }} carta secreta o arte alternativo adicional</li>
+          </template>
         </ul>
 
         <p class="mt-3">
@@ -90,16 +91,16 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { getBoosterById, getSetByCode } from "@/services/firestoreProducts";
 import { useCartStore } from "@/stores/cart";
+
 const cart = useCartStore();
-
-function addProduct(product) {
-  cart.addToCart(product);
-}
-
-
 const route = useRoute();
 const product = ref(null);
 const setData = ref(null);
+
+function addProduct(product) {
+  cart.addToCart(product);
+  console.log("✅ Producto agregado al carrito:", product.name);
+}
 
 onMounted(async () => {
   try {
@@ -114,10 +115,6 @@ onMounted(async () => {
     console.error("Error cargando detalle:", err);
   }
 });
-
-function addToCart(product) {
-  console.log("Agregar al carrito desde detalle:", product);
-}
 </script>
 
 <style scoped>
